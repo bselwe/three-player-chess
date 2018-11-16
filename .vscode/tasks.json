@@ -1,0 +1,36 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "identifier": "web-dev-server",
+      "type": "shell",
+      "label": "Run Web dev server",
+      "command": "yarn dev",
+      "isBackground": true,
+      "promptOnClose": false,
+      "group": "build",
+      "problemMatcher": {
+        "owner": "webpack",
+        "pattern": [
+          {
+            "regexp": "^(WARNING|ERROR|INFO) in (.*)$",
+            "severity": 1,
+            "file": 2
+          },
+          {
+            "regexp": "^\\[(\\d+), (\\d+)\\]: (.*)$",
+            "line": 1,
+            "column": 2,
+            "message": 3,
+            "loop": true
+          }
+        ],
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "Checking started in a separate process\\.\\.\\.$",
+          "endsPattern": "^webpack: Compiled successfully\\.$"
+        }
+      }
+    }
+  ]
+}

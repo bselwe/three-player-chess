@@ -1,0 +1,18 @@
+{
+    "typescript.tsdk": "node_modules\\typescript\\lib",
+    "files.exclude": {
+      ".fake": true,
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/bin": true,
+      "**/obj": true,
+      "**/node_modules": true,
+      "packages": true,
+      "**/Logs": true,
+      "deploy": true,
+      ".vs": true,
+      ".paket": true,
+      "paket-files": true,
+      "**/__snapshots__": true
+    }
+  }

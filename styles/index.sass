@@ -1,0 +1,29 @@
+@import "./variables"
+@import "./chessboard"
+
+html, body
+    font-family: OpenSans, sans-serif
+    min-height: 100vh
+    margin: 0
+    padding: 0
+    background-color: $background
+
+#board-container
+    width: 400px
+    position: absolute
+    top: 50%
+    left: 50%
+    transform: translate(-50%, -50%)
+    overflow: hidden
+
+    #board-border
+        height: 2px
+        width: 396px
+        position: absolute
+        top: 0px
+        left: 0px
+        z-index: 100
+        background: #404040
+
+    #board
+        margin-top: -200px
