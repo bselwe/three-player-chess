@@ -1,11 +1,23 @@
 class App {
-    private boardConfig = {
+    private board: ChessBoard;
+    private boardConfig: ChessConfig = {
         draggable: true,
-        position: "start"
+        position: {
+            c2: "bB",
+            e3: "wK"
+        },
+        onDrop: this.onDrop
     };
 
     public start() {
-        ChessBoard("board", this.boardConfig);
+        this.board = ChessBoard("board", this.boardConfig);
+    }
+
+    private onDrop(source: ChessPosition, target: ChessPosition, piece: ChessPiece,
+                   newPos: PositionObject, oldPos: PositionObject): void | "snapback" | "trash" {
+        if (Number(target[1]) > 4) {
+            return "snapback";
+        }
     }
 }
 
