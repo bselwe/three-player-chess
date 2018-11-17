@@ -15,7 +15,11 @@ type ChessPosition = "a1" | "a2" | "a2" | "a4" |
 type WhitePiece = "wK"  /*| "wQ" | "wR" */| "wB" | "wN" | "wP";
 type BlackPiece = "bK"  /*| "bQ" | "bR" */| "bB" | "bN" | "bP";
 type OrangePiece = "oK" /*| "oQ" | "oR" */| "oB" | "oN" | "oP";
+type Color = "w" | "b" | "o";
+
 type ChessPiece = WhitePiece | BlackPiece | OrangePiece;
+type PieceType = "K" | "N" | "B" | "P";
+
 
 type PositionObject = { [key in ChessPosition]?: ChessPiece };
 
