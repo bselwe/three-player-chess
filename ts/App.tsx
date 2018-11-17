@@ -4,14 +4,15 @@ import { Board, Piece } from "./Board";
 class App {
     private chessboard: ChessBoard;
     private boardConfig: ChessConfig;
+    private board: Board;
 
     private moves: Move[];
     private generator: MoveGenerator = new MoveGenerator();
 
     public start() {
-        let board = new Board();
+        this.board = new Board();
         let position: PositionObject = {};
-        for (let row of board.board) {
+        for (let row of this.board.board) {
             for (let piece of row) {
                 if (piece) {
                     position[piece.chessboardPos()] = piece.piece;
@@ -26,9 +27,7 @@ class App {
         };
 
         this.chessboard = ChessBoard("board", this.boardConfig);
-        this.moves = this.generator.generateMoves(board, "w");
-
-        console.warn(this.moves);
+        this.generateMoves();
     }
 
     private onDrop(source: ChessPosition, target: ChessPosition, piece: ChessPiece,
@@ -36,14 +35,20 @@ class App {
         if (Number(target[1]) > 4 || !this.validMove(source, target)) {
             return "snapback";
         }
+        this.board.movePiece(source, target);
+        this.generateMoves();
+    }
+
+    private generateMoves() {
+        this.moves = this.generator.generateMoves(this.board, "w");
+        console.warn(this.moves);
+        console.warn(this.board);
     }
 
     private validMove(source: ChessPosition, dest: ChessPosition) {
         let [x, y] = Piece.arrayPos(source);
-        console.warn(x, y);
         return this.moves.some((move, _, __) => {
             let p = move.piece;
-            console.log(move);
             return p.xPos === x && p.yPos === y && move.target === dest;
         });
     }

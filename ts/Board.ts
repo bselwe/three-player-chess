@@ -19,6 +19,11 @@ export class Piece {
 
     isKing() { return this.kind() === "K"; }
 
+    updatePos(x: number, y: number) {
+        this.xPos = x;
+        this.yPos = y;
+    }
+
     static chessboardPos(x: number, y: number) {
         return String.fromCharCode(Piece.a + x) + (y + 1) as ChessPosition;
     }
@@ -28,7 +33,6 @@ export class Piece {
         return [x, y];
     }
 }
-
 
 export class Board {
     board: (Piece | null)[][];
@@ -44,6 +48,34 @@ export class Board {
         }
         this.initialSetup();
     }
+
+    movePiece(source: ChessPosition, dest: ChessPosition) {
+        let [x, y] = Piece.arrayPos(source);
+        let [xP, yP] = Piece.arrayPos(dest);
+
+        let piece = this.board[x][y];
+        if (piece) {
+            this.board[x][y] = null;
+            piece.updatePos(xP, yP);
+
+            let opponent = this.board[xP][yP];
+            if (opponent) {
+                this.removePiece(opponent);
+            }
+            this.board[xP][yP] = piece;
+        }
+    }
+
+    private removePiece(piece: Piece) {
+        let neq = (p: Piece) => p.xPos !== piece.xPos || p.yPos !== piece.yPos;
+
+        switch (piece.color()) {
+            case "b": this.blacks = this.blacks.filter(neq); break;
+            case "o": this.oranges = this.oranges.filter(neq); break;
+            case "o": this.whites = this.whites.filter(neq); break;
+        }
+    }
+
 
     private initialSetup() {
         let whites = [

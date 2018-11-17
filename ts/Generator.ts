@@ -1,15 +1,31 @@
 import { Board, Piece } from "./Board";
 
 export class MoveGenerator {
-    private board: Board;
+    private board: (Piece | null)[][];
 
     generateMoves(board: Board, color: Color) {
-        this.board = board;
+        this.board = board.board;
         let moves: Move[] = [];
 
         for (let piece of board.whites) {
             switch (piece.kind()) {
-                case "P": moves.push(...this.generatePawn(piece));
+                case "P": moves.push(...this.generatePawn(piece)); break;
+                case "K": moves.push(...this.generateKing(piece)); break;
+            }
+        }
+        return moves;
+    }
+
+    private generateKing(piece: Piece) {
+        let moves: Move[] = [];
+        let x = piece.xPos;
+        let y = piece.yPos;
+
+        for (let xP = x - 1; xP <= x + 1; xP++) {
+            for (let yP = y - 1; yP <= y + 1; yP++) {
+                if (this.canMove(piece, xP, yP)) {
+                    moves.push({ piece, target: Piece.chessboardPos(xP, yP) });
+                }
             }
         }
         return moves;
@@ -25,32 +41,30 @@ export class MoveGenerator {
             return moves;
         }
 
-        if (!this.board.board[x][y]) {
+        if (!this.board[x][y]) {
             moves.push({ piece, target: Piece.chessboardPos(x, y) });
         }
 
         x = piece.xPos - 1;
 
-        if (this.withinBoard(x, y)) {
-            let o = this.board.board[x][y];
-            if (this.canBeat(piece, o)) {
-                moves.push({ piece, target: Piece.chessboardPos(x, y) });
-            }
+        if (this.canMove(piece, x, y)) {
+            moves.push({ piece, target: Piece.chessboardPos(x, y) });
         }
 
         x = piece.xPos + 1;
-        if (this.withinBoard(x, y)) {
-            let o = this.board.board[x][y];
-            if (this.canBeat(piece, o)) {
-                moves.push({ piece, target: Piece.chessboardPos(x, y) });
-            }
+        if (this.canMove(piece, x, y)) {
+            moves.push({ piece, target: Piece.chessboardPos(x, y) });
         }
 
         return moves;
     }
 
+    private canMove(piece: Piece, x: number, y: number): boolean {
+        return this.withinBoard(x, y) && this.canBeat(piece, this.board[x][y]);
+    }
+
     private canBeat(piece: Piece, other: (Piece | null)) {
-        return other && !other.isKing() && other.color() !== piece.color();
+        return !other || (!other.isKing() && other.color() !== piece.color());
     }
 
     private withinBoard(x: number, y: number) {
