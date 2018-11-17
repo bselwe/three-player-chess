@@ -4,7 +4,8 @@ class App {
         draggable: true,
         position: {
             c2: "bB",
-            e3: "wK"
+            e3: "wK",
+            f2: "oQ"
         },
         onDrop: this.onDrop
     };

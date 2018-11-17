@@ -12,8 +12,10 @@ type ChessPosition = "a1" | "a2" | "a2" | "a4" |
                      "g1" | "g2" | "g3" | "g4" |
                      "h1" | "h2" | "h3" | "h4";
 
-type ChessPiece = "wK" | "wQ" | "wR" | "wB" | "wN" | "wP" |
-                  "bK" | "bQ" | "bR" | "bB" | "bN" | "bP";
+type WhitePiece = "wK" | "wQ" | "wR" | "wB" | "wN" | "wP";
+type BlackPiece = "bK" | "bQ" | "bR" | "bB" | "bN" | "bP";
+type OrangePiece = "oK" | "oQ" | "oR" | "oB" | "oN" | "oP";
+type ChessPiece = WhitePiece | BlackPiece | OrangePiece;
 
 type PositionObject = { [key in ChessPosition]?: ChessPiece };
 
@@ -41,7 +43,6 @@ interface ChessConfig {
     readonly dropOffBoard?: "snapback" | "trash";
     readonly position?: PositionObject;
     readonly showNotation?: boolean;
-    readonly sparePieces?: false;
     readonly showErrors?: false | "console" | "alert" | ((errorCode: number, error: string) => void);
     readonly appearSpeed?: number;
     readonly moveSpeed?: number;
