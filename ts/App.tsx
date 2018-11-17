@@ -23,20 +23,27 @@ class App {
         this.boardConfig = {
             draggable: true,
             position,
-            onDrop: this.onDrop.bind(this)
+            onDrop: this.onDrop,
+            onDragStart: this.onDragStart
         };
 
         this.chessboard = ChessBoard("board", this.boardConfig);
         this.generateMoves();
     }
 
-    private onDrop(source: ChessPosition, target: ChessPosition, piece: ChessPiece,
-        newPos: PositionObject, oldPos: PositionObject): void | "snapback" | "trash" {
+    private onDrop = (source: ChessPosition, target: ChessPosition, piece: ChessPiece,
+        newPos: PositionObject, oldPos: PositionObject): void | "snapback" | "trash" => {
         if (Number(target[1]) > 4 || !this.validMove(source, target)) {
             return "snapback";
         }
         this.board.movePiece(source, target);
         this.generateMoves();
+    }
+
+    private onDragStart = (source: ChessPosition, piece: ChessPiece, position: PositionObject): void | boolean => {
+        if (piece[0] !== "w") {
+            return false;
+        }
     }
 
     private generateMoves() {
