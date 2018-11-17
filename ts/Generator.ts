@@ -27,7 +27,7 @@ export class MoveGenerator {
 
         for (let xP = x - 1; xP <= x + 1; xP++) {
             for (let yP = y - 1; yP <= y + 1; yP++) {
-                if (this.canMove(piece, xP, yP)) {
+                if (this.canMove(piece, xP, yP) && !this.kingOverlapping(xP, yP, piece.color())) {
                     moves.push({ piece, target: Piece.chessboardPos(xP, yP) });
                 }
             }
@@ -69,16 +69,16 @@ export class MoveGenerator {
         let moves: Move[] = [];
 
         let jumps: [number, number][] = [
-            // gora
+            // up
             [x - 1, y + 2],
             [x + 1, y + 2],
-            // prawo
+            // right
             [x + 2, y + 1],
             [x + 2, y - 1],
-            // dol
+            // down
             [x + 1, y - 2],
             [x - 1, y - 2],
-            // lewo
+            // left
             [x - 2, y + 1],
             [x - 2, y - 1],
         ];
@@ -113,6 +113,20 @@ export class MoveGenerator {
         generateDiagonal(-1, 1);
         generateDiagonal(-1, -1);
         return moves;
+    }
+
+    private kingOverlapping(x: number, y: number, color: Color) {
+        for (let xP = x - 1; xP <= x + 1; xP++) {
+            for (let yP = y - 1; yP <= y + 1; yP++) {
+                if (!this.withinBoard(xP, yP)) { continue; }
+                let k = this.board[xP][yP];
+                if (k && k.isKing() && k.color() !== color) {
+                    console.log(k);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
 
