@@ -12,9 +12,9 @@ type ChessPosition = "a1" | "a2" | "a2" | "a4" |
                      "g1" | "g2" | "g3" | "g4" |
                      "h1" | "h2" | "h3" | "h4";
 
-type WhitePiece = "wK" | "wQ" | "wR" | "wB" | "wN" | "wP";
-type BlackPiece = "bK" | "bQ" | "bR" | "bB" | "bN" | "bP";
-type OrangePiece = "oK" | "oQ" | "oR" | "oB" | "oN" | "oP";
+type WhitePiece = "wK"  /*| "wQ" | "wR" */| "wB" | "wN" | "wP";
+type BlackPiece = "bK"  /*| "bQ" | "bR" */| "bB" | "bN" | "bP";
+type OrangePiece = "oK" /*| "oQ" | "oR" */| "oB" | "oN" | "oP";
 type ChessPiece = WhitePiece | BlackPiece | OrangePiece;
 
 type PositionObject = { [key in ChessPosition]?: ChessPiece };
