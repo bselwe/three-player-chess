@@ -14,6 +14,7 @@ export class MoveGenerator {
                 case "P": moves.push(...this.generatePawn(piece)); break;
                 case "K": moves.push(...this.generateKing(piece)); break;
                 case "N": moves.push(...this.generateKnight(piece)); break;
+                case "B": moves.push(...this.generateBishop(piece)); break;
             }
         }
         return moves;
@@ -90,6 +91,30 @@ export class MoveGenerator {
 
         return moves;
     }
+
+    private generateBishop(piece: Piece) {
+        let moves: Move[] = [];
+        let generateDiagonal = (xOff: number, yOff: number) => {
+            let xP = piece.xPos + xOff;
+            let yP = piece.yPos + yOff;
+
+            while (this.canMove(piece, xP, yP)) {
+                moves.push({ piece, target: Piece.chessboardPos(xP, yP) });
+                if (!!this.board[xP][yP]) {
+                    break;
+                }
+                xP += xOff;
+                yP += yOff;
+            }
+        };
+
+        generateDiagonal(1, 1);
+        generateDiagonal(1, -1);
+        generateDiagonal(-1, 1);
+        generateDiagonal(-1, -1);
+        return moves;
+    }
+
 
     private canMove(piece: Piece, x: number, y: number): boolean {
         return this.withinBoard(x, y) && this.canBeat(piece, this.board[x][y]);
