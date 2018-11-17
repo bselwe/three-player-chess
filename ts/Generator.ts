@@ -7,10 +7,13 @@ export class MoveGenerator {
         this.board = board.board;
         let moves: Move[] = [];
 
+        // TODO: Filter out checks and don't let king stand next to other king
+
         for (let piece of board.whites) {
             switch (piece.kind()) {
                 case "P": moves.push(...this.generatePawn(piece)); break;
                 case "K": moves.push(...this.generateKing(piece)); break;
+                case "N": moves.push(...this.generateKnight(piece)); break;
             }
         }
         return moves;
@@ -54,6 +57,35 @@ export class MoveGenerator {
         x = piece.xPos + 1;
         if (this.canMove(piece, x, y)) {
             moves.push({ piece, target: Piece.chessboardPos(x, y) });
+        }
+
+        return moves;
+    }
+
+    private generateKnight(piece: Piece) {
+        let x = piece.xPos;
+        let y = piece.yPos;
+        let moves: Move[] = [];
+
+        let jumps: [number, number][] = [
+            // gora
+            [x - 1, y + 2],
+            [x + 1, y + 2],
+            // prawo
+            [x + 2, y + 1],
+            [x + 2, y - 1],
+            // dol
+            [x + 1, y - 2],
+            [x - 1, y - 2],
+            // lewo
+            [x - 2, y + 1],
+            [x - 2, y - 1],
+        ];
+
+        for (let [xP, yP] of jumps) {
+            if (this.canMove(piece, xP, yP)) {
+                moves.push({ piece, target: Piece.chessboardPos(xP, yP) });
+            }
         }
 
         return moves;
