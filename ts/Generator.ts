@@ -76,12 +76,12 @@ export class MoveGenerator {
         }
 
         x = piece.xPos - 1;
-        if (this.canMove(piece, x, y)) {
+        if (this.canMove(piece, x, y) && this.board[x][y]) {
             moves.push(this.createMove(piece, x, y));
         }
 
         x = piece.xPos + 1;
-        if (this.canMove(piece, x, y)) {
+        if (this.canMove(piece, x, y) && this.board[x][y]) {
             moves.push(this.createMove(piece, x, y));
         }
 
