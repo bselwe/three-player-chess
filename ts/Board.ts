@@ -52,6 +52,9 @@ export class Board {
         this.board = new Array<Array<Piece>>(8);
         for (let i = 0; i < 8; i++) {
             this.board[i] = new Array<Piece>(4);
+            for (let j = 0; j < 4; j++) {
+                this.board[i][j] = null;
+            }
         }
 
         if (withInitialSetup) {

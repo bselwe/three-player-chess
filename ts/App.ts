@@ -48,7 +48,10 @@ class App {
     }
 
     private generateMoves() {
-        this.moves = this.generator.generateMoves(this.board, "w");
+        const moves = this.generator.generateMoves(this.board, "w");
+        const filteredMoves = this.generator.filterOutChecks(this.board, "w", moves);
+        this.moves = filteredMoves;
+
         // console.warn(this.moves);
         // console.warn(this.board);
     }
@@ -58,9 +61,6 @@ class App {
         return this.moves.some((move, _, __) => {
             let p = move.piece;
             const moveAllowed = p.xPos === x && p.yPos === y && move.target === dest;
-            if (moveAllowed) {
-                console.warn(move);
-            }
             return moveAllowed;
         });
     }

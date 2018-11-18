@@ -3,13 +3,12 @@ import { Board, Piece } from "./Board";
 export class MoveGenerator {
     private board: (Piece | null)[][];
 
-    generateMoves(board: Board, color: Color) {
+    generateMoves(board: Board, color: Color, withKingAsTarget: boolean = false) {
+        const [pieces, king, opponents] = this.getPiecesForColor(board, color);
         this.board = board.board;
         let moves: Move[] = [];
 
-        // TODO: Filter out checks
-
-        for (let piece of board.whites) {
+        for (let piece of pieces) {
             switch (piece.kind()) {
                 case "P": moves.push(...this.generatePawn(piece)); break;
                 case "K": moves.push(...this.generateKing(piece)); break;
@@ -17,7 +16,34 @@ export class MoveGenerator {
                 case "B": moves.push(...this.generateBishop(piece)); break;
             }
         }
+
+        if (!withKingAsTarget) {
+            moves = moves.filter(m => m.beatenPiece === null || (m.beatenPiece !== null && !m.beatenPiece.isKing()));
+        }
+
         return moves;
+    }
+
+    filterOutChecks(board: Board, color: Color, moves: Move[]) {
+        let filteredMoves: Move[] = [];
+        const [opponentOne, opponentTwo]: [Color, Color] = color === "w" ? ["b", "o"] :
+            (color === "b" ? ["w", "o"] : ["w", "b"]);
+
+        for (const move of moves) {
+            const boardMove = Board.fromBoard(board);
+            boardMove.movePiece(move.piece.chessboardPos(), move.target);
+
+            const opponentOneMoves = this.generateMoves(boardMove, opponentOne, true);
+            const opponentTwoMoves = this.generateMoves(boardMove, opponentTwo, true);
+            const opponentsMoves = opponentOneMoves.concat(opponentTwoMoves);
+
+            if (!opponentsMoves.some(m =>
+                m.beatenPiece !== null && m.beatenPiece.isKing() && m.beatenPiece.color() === color)) {
+                filteredMoves.push(move);
+            }
+        }
+
+        return filteredMoves;
     }
 
     private generateKing(piece: Piece) {
@@ -120,7 +146,7 @@ export class MoveGenerator {
                 if (!this.withinBoard(xP, yP)) { continue; }
                 let k = this.board[xP][yP];
                 if (k && k.isKing() && k.color() !== color) {
-                    console.log(k);
+                    // console.log(k);
                     return true;
                 }
             }
@@ -133,7 +159,8 @@ export class MoveGenerator {
     }
 
     private canBeat(piece: Piece, other: (Piece | null)) {
-        return !other || (!other.isKing() && other.color() !== piece.color());
+        // return !other || (!other.isKing() && other.color() !== piece.color());
+        return !other || (other.color() !== piece.color());
     }
 
     private withinBoard(x: number, y: number) {
@@ -146,6 +173,19 @@ export class MoveGenerator {
             target: Piece.chessboardPos(x, y),
             beatenPiece: this.board[x][y]
         };
+    }
+
+    private getPiecesForColor(board: Board, color: Color): [Piece[], Piece, Piece[]] {
+        const pieces = color === "w" ? board.whites :
+            (color === "b" ? board.blacks : board.oranges);
+
+        const king = color === "w" ? board.whiteKing :
+            (color === "b" ? board.blackKing : board.orangeKing);
+
+        const opponents = color === "w" ? board.blacks.concat(board.oranges) :
+            (color === "b" ? board.whites.concat(board.oranges) : board.whites.concat(board.blacks));
+
+        return [pieces, king, opponents];
     }
 }
 
