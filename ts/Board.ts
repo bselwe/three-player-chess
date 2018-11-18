@@ -13,6 +13,15 @@ export class Piece {
         return this.piece[1] as PieceType;
     }
 
+    value(): number {
+        switch (this.kind()) {
+            case "K": return 10000;
+            case "N": return 300;
+            case "B": return 325;
+            case "P": return 100;
+        }
+    }
+
     chessboardPos(): ChessPosition {
         return Piece.chessboardPos(this.xPos, this.yPos);
     }
@@ -92,6 +101,20 @@ export class Board {
         this.whiteKing = whites[0];
         this.blackKing = blacks[0];
         this.orangeKing = oranges[0];
+    }
+
+    calculatePieceValues(color: Color): number {
+        const sumPieceValues = (pieces: Piece[]) => {
+            return pieces.reduce((p, c) => {
+                return p + c.value();
+            }, 0);
+        }
+
+        switch (color) {
+            case "w": return sumPieceValues(this.whites);
+            case "b": return sumPieceValues(this.blacks);
+            case "o": return sumPieceValues(this.oranges);
+        }
     }
 
     static fromBoard = (board: Board): Board => {
