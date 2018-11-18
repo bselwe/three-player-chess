@@ -21,7 +21,7 @@ export class MoveGenerator {
             moves = moves.filter(m => m.beatenPiece === null || (m.beatenPiece !== null && !m.beatenPiece.isKing()));
         }
 
-        this.updateMoveLeadsToCheck(board, color, moves);
+        // this.updateMoveLeadsToCheck(board, color, moves);
 
         return moves;
     }
