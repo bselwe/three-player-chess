@@ -21,6 +21,8 @@ export class MoveGenerator {
             moves = moves.filter(m => m.beatenPiece === null || (m.beatenPiece !== null && !m.beatenPiece.isKing()));
         }
 
+        this.updateMoveLeadsToCheck(board, color, moves);
+
         return moves;
     }
 
@@ -44,6 +46,16 @@ export class MoveGenerator {
         }
 
         return filteredMoves;
+    }
+
+    updateMoveLeadsToCheck(board: Board, color: Color, moves: Move[]) {
+        for (let move of moves) {
+            let boardCopy = Board.fromBoard(board);
+            boardCopy.movePiece(move.piece.chessboardPos(), move.target);
+            let nextMoves = this.generateMoves(boardCopy, color, true);
+        
+            move.leadsToCheck = nextMoves.some(m => m.beatenPiece && m.beatenPiece.isKing() || false);
+        }
     }
 
     private generateKing(piece: Piece) {
@@ -146,7 +158,6 @@ export class MoveGenerator {
                 if (!this.withinBoard(xP, yP)) { continue; }
                 let k = this.board[xP][yP];
                 if (k && k.isKing() && k.color() !== color) {
-                    // console.log(k);
                     return true;
                 }
             }
@@ -171,7 +182,8 @@ export class MoveGenerator {
         return {
             piece,
             target: Piece.chessboardPos(x, y),
-            beatenPiece: this.board[x][y]
+            beatenPiece: this.board[x][y],
+            leadsToCheck: false
         };
     }
 
@@ -193,5 +205,6 @@ export interface Move {
     piece: Piece;
     target: ChessPosition;
     beatenPiece: Piece | null;
+    leadsToCheck: Boolean;
 }
 
