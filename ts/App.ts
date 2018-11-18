@@ -42,17 +42,43 @@ class App {
         this.turn = nextTurn;
         this.moves = this.generateMoves(this.board, nextTurn);
 
-        if (nextTurn !== "w") {   
-            // this.moves = this.generateMoves(this.board, nextTurn);
+        if (nextTurn !== "w") {
             if (this.moves.length === 0) {
                 console.warn("END");
                 return;
             }
 
+            let nextMove = this.findBestMove();
+
+            await sleep(this.opponentResponseTimeMs);
+
+            if (nextMove !== null) {
+                this.chessboard.move(`${nextMove.piece.chessboardPos()}-${nextMove.target}`);
+                this.board.movePiece(nextMove.piece.chessboardPos(), nextMove.target);
+            }
+
+            this.beginNewTurn();
+        }
+    }
+
+    private findBestMove = (): (Move | null) => {
+        let bestMove: (Move | null) = null;
+        let bestMoveState: number = 0;
+
+        for (let move of this.moves) {
+            let boardCopy = Board.fromBoard(this.board);
+            boardCopy.movePiece(move.piece.chessboardPos(), move.target);
+            let nextTurn = this.findNextTurn();
+            let nextMoves = this.generateMoves(boardCopy, nextTurn);
+            if (nextMoves.length === 0) {
+                console.warn("END");
+                return null;
+            }
+
             let nextMove: Move;
-            const beatMoves = this.moves.filter(m => m.beatenPiece !== null);
+            const beatMoves = nextMoves.filter(m => m.beatenPiece !== null);
             if (beatMoves.length === 0) {
-                nextMove = this.moves[0];
+                nextMove = nextMoves[0];
             } else {
                 nextMove = beatMoves.reduce((p, c) => {
                     const pValue = (p.beatenPiece as Piece).value();
@@ -61,19 +87,14 @@ class App {
                 });
             }
 
-            await sleep(this.opponentResponseTimeMs);
-
-            this.chessboard.move(`${nextMove.piece.chessboardPos()}-${nextMove.target}`);
-            this.board.movePiece(nextMove.piece.chessboardPos(), nextMove.target);
-            // this.chessboard.move("e1-f2");
-
-            this.beginNewTurn();
-
-            // for (const move of opponentMoves) {
-            //     const boardMove = Board.fromBoard(this.board);
-            //     boardMove.movePiece(move.piece.chessboardPos(), move.target);
-            // }
+            boardCopy.movePiece(nextMove.piece.chessboardPos(), nextMove.target);
+            let pieceValues = boardCopy.calculatePieceValues(this.turn);
+            if (pieceValues > bestMoveState) {
+                bestMove = move;
+            }
         }
+
+        return bestMove;
     }
 
     private findNextTurn(): Color {
