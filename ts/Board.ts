@@ -108,7 +108,7 @@ export class Board {
             return pieces.reduce((p, c) => {
                 return p + c.value();
             }, 0);
-        }
+        };
 
         switch (color) {
             case "w": return sumPieceValues(this.whites);
