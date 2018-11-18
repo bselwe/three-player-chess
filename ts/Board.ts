@@ -44,6 +44,9 @@ export class Board {
     whites: Piece[];
     blacks: Piece[];
     oranges: Piece[];
+    whiteKing: Piece;
+    blackKing: Piece;
+    orangeKing: Piece;
 
     constructor(withInitialSetup: boolean = false) {
         this.board = new Array<Array<Piece>>(8);
@@ -81,6 +84,11 @@ export class Board {
         this.whites = whites;
         this.blacks = blacks;
         this.oranges = oranges;
+
+        // For simplicity we assume that kings are always 0-indexed
+        this.whiteKing = whites[0];
+        this.blackKing = blacks[0];
+        this.orangeKing = oranges[0];
     }
 
     static fromBoard = (board: Board): Board => {
@@ -105,21 +113,28 @@ export class Board {
     }
 
     private initialSetup() {
-        let whites = [
+        const whiteKing = new Piece("wK", 1, 0);
+        const blackKing = new Piece("bK", 1, 2);
+        const orangeKing = new Piece("oK", 7, 3);
+
+        const whites = [
+            whiteKing,
             new Piece("wP", 0, 1),
-            new Piece("wK", 1, 0),
             new Piece("wN", 3, 0),
             new Piece("wB", 4, 0)
         ];
-        let blacks = [
+
+        const blacks = [
+            blackKing,
             new Piece("bN", 0, 3),
-            new Piece("bP", 1, 3),
-            new Piece("bK", 1, 2)
+            new Piece("bP", 1, 3)
         ];
-        let oranges = [
-            new Piece("oK", 7, 3),
+
+        const oranges = [
+            orangeKing,
             new Piece("oP", 7, 2),
-            new Piece("oB", 6, 2)
+            // new Piece("oB", 6, 2)
+            new Piece("oB", 5, 3)
         ];
 
         this.setPieces(whites, blacks, oranges);
