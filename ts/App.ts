@@ -41,13 +41,13 @@ class App {
         console.warn("TURN: " + nextTurn);
         this.turn = nextTurn;
         this.moves = this.generateMoves(this.board, nextTurn);
+        if (this.moves.length === 0) {
+            console.warn("END");
+            alert("END");
+            return;
+        }
 
         if (nextTurn !== "w") {
-            if (this.moves.length === 0) {
-                console.warn("END");
-                return;
-            }
-
             let nextMove = this.findBestMove();
 
             await sleep(this.opponentResponseTimeMs);
@@ -62,47 +62,111 @@ class App {
     }
 
     private findBestMove = (): (Move | null) => {
-        let bestMove: (Move | null) = null;
-        let bestMoveState: number = 0;
+        // let bestMove: (Move | null) = null;
+        // let bestMoveState: number = 0;
 
-        for (let move of this.moves) {
-            let boardCopy = Board.fromBoard(this.board);
-            boardCopy.movePiece(move.piece.chessboardPos(), move.target);
-            let nextTurn = this.findNextTurn();
-            let nextMoves = this.generateMoves(boardCopy, nextTurn);
-            if (nextMoves.length === 0) {
-                console.warn("END");
-                return null;
-            }
+        // for (let move of this.moves) {
+        //     let boardCopy = Board.fromBoard(this.board);
+        //     boardCopy.movePiece(move.piece.chessboardPos(), move.target);
+        //     let nextTurn = this.findNextTurn();
+        //     let nextMoves = this.generateMoves(boardCopy, nextTurn);
+        //     if (nextMoves.length === 0) {
+        //         console.warn("END");
+        //         return null;
+        //     }
 
-            let nextMove: Move;
-            const beatMoves = nextMoves.filter(m => m.beatenPiece !== null);
-            if (beatMoves.length === 0) {
-                nextMove = nextMoves[0];
-            } else {
-                nextMove = beatMoves.reduce((p, c) => {
-                    const pValue = (p.beatenPiece as Piece).value();
-                    const cValue = (c.beatenPiece as Piece).value();
-                    return pValue > cValue ? p : c;
-                });
-            }
+        //     let nextMove: Move;
+        //     const beatMoves = nextMoves.filter(m => m.beatenPiece !== null);
+        //     if (beatMoves.length === 0) {
+        //         nextMove = nextMoves[0];
+        //     } else {
+        //         nextMove = beatMoves.reduce((p, c) => {
+        //             const pValue = (p.beatenPiece as Piece).value();
+        //             const cValue = (c.beatenPiece as Piece).value();
+        //             return pValue > cValue ? p : c;
+        //         });
+        //     }
 
-            boardCopy.movePiece(nextMove.piece.chessboardPos(), nextMove.target);
-            let pieceValues = boardCopy.calculatePieceValues(this.turn);
-            if (pieceValues > bestMoveState) {
-                bestMove = move;
-            }
-        }
-
-        return bestMove;
+        //     boardCopy.movePiece(nextMove.piece.chessboardPos(), nextMove.target);
+        //     let pieceValues = boardCopy.calculatePieceValues(this.turn);
+        //     if (pieceValues > bestMoveState) {
+        //         bestMove = move;
+        //     }
+        // }
+        return this.shallow(this.board, null, this.turn, this.globalUpper, 2).move;
+        // return bestMove;
     }
 
-    private findNextTurn(): Color {
-        switch (this.turn) {
+    shallow(board: Board, move: Move | null, player: Color, bound: number, depth: number): BestMove {
+        let moves = this.generateMoves(board, player);
+
+        if (depth === 0 || moves.length === 0) {
+            let bounds = {
+                "w": board.calculatePieceValues("w"),
+                "b": board.calculatePieceValues("b"),
+                "o": board.calculatePieceValues("o")
+            };
+            bounds[player] += this.moveValue(move);
+            return { bounds, move };
+        }
+        let copy = Board.fromBoard(board);
+        copy.movePiece(moves[0].piece.chessboardPos(), moves[0].target);
+
+        let best = {
+            ...this.shallow(copy, moves[0], this._findNextTurn(player), this.globalUpper, depth - 1),
+            move: moves[0]
+        };
+
+        for (let next of moves.slice(1)) {
+            if (best.bounds[player] >= bound) {
+                return best;
+            }
+            copy = Board.fromBoard(board);
+            copy.movePiece(next.piece.chessboardPos(), next.target);
+
+            let current = this.shallow(copy, next, this._findNextTurn(player), this.globalUpper - best.bounds[player], depth - 1);
+            if (current.bounds[player] > best.bounds[player]) {
+                best = {
+                    ...current,
+                    move: next
+                };
+            }
+        }
+        return best;
+        // return { ...best, move };
+
+    }
+
+    moveValue(move: Move | null) {
+        if (!move) {
+            return 0;
+        }
+        return (move.beatenPiece && move.beatenPiece.value() || 0) + (move.leadsToCheck && 300);
+    }
+
+    readonly globalUpper = 91242424132;
+
+
+    // Shallow(Node, Player, Bound)
+    // IF Node is terminal, RETURN static value
+    // Best = Shallow(first Child, next Player, Sum)
+    // FOR each remaining Child
+    // IF Best[Player] > = Bound, RETURN Best
+    // Current = Shallow(Child, next Player, Sum - Best[Player])
+    // IF Current[Player] > Best[Player], Best = Current
+    // RETURN Best
+
+
+    private _findNextTurn(color: Color): Color {
+        switch (color) {
             case "w": return "b";
             case "b": return "o";
             case "o": return "w";
         }
+    }
+
+    private findNextTurn(): Color {
+        return this._findNextTurn(this.turn);
     }
 
     private onDrop = (source: ChessPosition, target: ChessPosition, piece: ChessPiece,
@@ -135,6 +199,11 @@ class App {
             return moveAllowed;
         });
     }
+}
+
+interface BestMove {
+    bounds: { [key in Color]: number; };
+    move: Move | null;
 }
 
 
