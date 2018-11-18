@@ -7,7 +7,7 @@ export class MoveGenerator {
         this.board = board.board;
         let moves: Move[] = [];
 
-        // TODO: Filter out checks and don't let king stand next to other king
+        // TODO: Filter out checks
 
         for (let piece of board.whites) {
             switch (piece.kind()) {
@@ -28,7 +28,7 @@ export class MoveGenerator {
         for (let xP = x - 1; xP <= x + 1; xP++) {
             for (let yP = y - 1; yP <= y + 1; yP++) {
                 if (this.canMove(piece, xP, yP) && !this.kingOverlapping(xP, yP, piece.color())) {
-                    moves.push({ piece, target: Piece.chessboardPos(xP, yP) });
+                    moves.push(this.createMove(piece, xP, yP));
                 }
             }
         }
@@ -46,18 +46,17 @@ export class MoveGenerator {
         }
 
         if (!this.board[x][y]) {
-            moves.push({ piece, target: Piece.chessboardPos(x, y) });
+            moves.push(this.createMove(piece, x, y));
         }
 
         x = piece.xPos - 1;
-
         if (this.canMove(piece, x, y)) {
-            moves.push({ piece, target: Piece.chessboardPos(x, y) });
+            moves.push(this.createMove(piece, x, y));
         }
 
         x = piece.xPos + 1;
         if (this.canMove(piece, x, y)) {
-            moves.push({ piece, target: Piece.chessboardPos(x, y) });
+            moves.push(this.createMove(piece, x, y));
         }
 
         return moves;
@@ -85,7 +84,7 @@ export class MoveGenerator {
 
         for (let [xP, yP] of jumps) {
             if (this.canMove(piece, xP, yP)) {
-                moves.push({ piece, target: Piece.chessboardPos(xP, yP) });
+                moves.push(this.createMove(piece, xP, yP));
             }
         }
 
@@ -99,7 +98,7 @@ export class MoveGenerator {
             let yP = piece.yPos + yOff;
 
             while (this.canMove(piece, xP, yP)) {
-                moves.push({ piece, target: Piece.chessboardPos(xP, yP) });
+                moves.push(this.createMove(piece, xP, yP));
                 if (!!this.board[xP][yP]) {
                     break;
                 }
@@ -129,7 +128,6 @@ export class MoveGenerator {
         return false;
     }
 
-
     private canMove(piece: Piece, x: number, y: number): boolean {
         return this.withinBoard(x, y) && this.canBeat(piece, this.board[x][y]);
     }
@@ -141,10 +139,19 @@ export class MoveGenerator {
     private withinBoard(x: number, y: number) {
         return x >= 0 && x < 8 && y >= 0 && y < 4;
     }
+
+    private createMove(piece: Piece, x: number, y: number) {
+        return {
+            piece,
+            target: Piece.chessboardPos(x, y),
+            beatenPiece: this.board[x][y]
+        };
+    }
 }
 
 export interface Move {
     piece: Piece;
     target: ChessPosition;
+    beatenPiece: Piece | null;
 }
 
