@@ -72,7 +72,7 @@ export class Board {
         switch (piece.color()) {
             case "b": this.blacks = this.blacks.filter(neq); break;
             case "o": this.oranges = this.oranges.filter(neq); break;
-            case "o": this.whites = this.whites.filter(neq); break;
+            case "w": this.whites = this.whites.filter(neq); break;
         }
     }
 
