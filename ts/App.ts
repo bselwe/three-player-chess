@@ -7,10 +7,10 @@ class App {
     private board: Board;
 
     private moves: Move[];
-    private generator: MoveGenerator = new MoveGenerator();
+    private readonly generator: MoveGenerator = new MoveGenerator();
 
     public start() {
-        this.board = new Board();
+        this.board = new Board(true);
         let position: PositionObject = {};
         for (let row of this.board.board) {
             for (let piece of row) {
@@ -36,6 +36,7 @@ class App {
         if (Number(target[1]) > 4 || !this.validMove(source, target)) {
             return "snapback";
         }
+
         this.board.movePiece(source, target);
         this.generateMoves();
     }
@@ -48,15 +49,19 @@ class App {
 
     private generateMoves() {
         this.moves = this.generator.generateMoves(this.board, "w");
-        console.warn(this.moves);
-        console.warn(this.board);
+        // console.warn(this.moves);
+        // console.warn(this.board);
     }
 
     private validMove(source: ChessPosition, dest: ChessPosition) {
         let [x, y] = Piece.arrayPos(source);
         return this.moves.some((move, _, __) => {
             let p = move.piece;
-            return p.xPos === x && p.yPos === y && move.target === dest;
+            const moveAllowed = p.xPos === x && p.yPos === y && move.target === dest;
+            if (moveAllowed) {
+                console.warn(move);
+            }
+            return moveAllowed;
         });
     }
 }
