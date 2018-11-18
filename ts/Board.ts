@@ -24,9 +24,14 @@ export class Piece {
         this.yPos = y;
     }
 
+    copy(): Piece {
+        return new Piece(this.piece, this.xPos, this.yPos);
+    }
+
     static chessboardPos(x: number, y: number) {
         return String.fromCharCode(Piece.a + x) + (y + 1) as ChessPosition;
     }
+
     static arrayPos(pos: ChessPosition) {
         let x = pos.charCodeAt(0) - Piece.a;
         let y = parseInt(pos.charAt(1)) - 1;
@@ -35,18 +40,20 @@ export class Piece {
 }
 
 export class Board {
-    board: (Piece | null)[][];
+    readonly board: (Piece | null)[][];
     whites: Piece[];
     blacks: Piece[];
     oranges: Piece[];
 
-
-    constructor() {
+    constructor(withInitialSetup: boolean = false) {
         this.board = new Array<Array<Piece>>(8);
         for (let i = 0; i < 8; i++) {
             this.board[i] = new Array<Piece>(4);
         }
-        this.initialSetup();
+
+        if (withInitialSetup) {
+            this.initialSetup();
+        }
     }
 
     movePiece(source: ChessPosition, dest: ChessPosition) {
@@ -66,6 +73,27 @@ export class Board {
         }
     }
 
+    setPieces(whites: Piece[], blacks: Piece[], oranges: Piece[]) {
+        whites.concat(blacks).concat(oranges).forEach(p => {
+            this.board[p.xPos][p.yPos] = p;
+        });
+
+        this.whites = whites;
+        this.blacks = blacks;
+        this.oranges = oranges;
+    }
+
+    static fromBoard = (board: Board): Board => {
+        const newBoard = new Board(false);
+
+        const whites: Piece[] = board.whites.map(p => p.copy());
+        const blacks: Piece[] = board.blacks.map(p => p.copy());
+        const oranges: Piece[] = board.oranges.map(p => p.copy());
+
+        newBoard.setPieces(whites, blacks, oranges);
+        return newBoard;
+    }
+
     private removePiece(piece: Piece) {
         let neq = (p: Piece) => p.xPos !== piece.xPos || p.yPos !== piece.yPos;
 
@@ -75,7 +103,6 @@ export class Board {
             case "w": this.whites = this.whites.filter(neq); break;
         }
     }
-
 
     private initialSetup() {
         let whites = [
@@ -95,13 +122,6 @@ export class Board {
             new Piece("oB", 6, 2)
         ];
 
-
-        whites.concat(blacks).concat(oranges).forEach(p => {
-            this.board[p.xPos][p.yPos] = p;
-        });
-
-        this.whites = whites;
-        this.blacks = blacks;
-        this.oranges = oranges;
+        this.setPieces(whites, blacks, oranges);
     }
 }
