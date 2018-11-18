@@ -8,7 +8,7 @@
         "type": "node",
         "request": "attach",
         "name": "Attach",
-        "port": 8080
+        "port": 3000
       },
         {
             "name": "Launch",
@@ -18,7 +18,7 @@
             "runtimeArgs": [
               "--enable-logging",
               "--remote-debugging-port=9222",
-              "http://localhost:8080"
+              "http://localhost:3000"
             ],
             "webRoot": "${workspaceRoot}",
             "sourceMaps": true,

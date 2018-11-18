@@ -11,7 +11,7 @@ module.exports = merge(CommonConfig, {
     devtool: "source-map",
 
     entry: [
-        "webpack-dev-server/client?http://localhost:8080",
+        "webpack-dev-server/client?http://localhost:3000",
     ],
 
     plugins: [
@@ -64,7 +64,7 @@ module.exports = merge(CommonConfig, {
         disableHostCheck: true,
 
         host: "0.0.0.0",
-        port: 8080,
+        port: 3000,
         historyApiFallback: true
     }
 });
