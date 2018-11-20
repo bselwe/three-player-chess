@@ -3,7 +3,7 @@ import { Board, Piece } from "./Board";
 export class MoveGenerator {
     private board: (Piece | null)[][];
 
-    generateMoves(board: Board, color: Color, withKingAsTarget: boolean = false) {
+    generateMoves(board: Board, color: Color, withKingAsTarget: boolean = false, withUpdateLeadsToCheck: boolean = true) {
         const [pieces, king, opponents] = this.getPiecesForColor(board, color);
         this.board = board.board;
         let moves: Move[] = [];
@@ -21,7 +21,9 @@ export class MoveGenerator {
             moves = moves.filter(m => m.beatenPiece === null || (m.beatenPiece !== null && !m.beatenPiece.isKing()));
         }
 
-        // this.updateMoveLeadsToCheck(board, color, moves);
+        if (withUpdateLeadsToCheck) {
+            this.updateMoveLeadsToCheck(board, color, moves);
+        }
 
         return moves;
     }
@@ -52,7 +54,7 @@ export class MoveGenerator {
         for (let move of moves) {
             let boardCopy = Board.fromBoard(board);
             boardCopy.movePiece(move.piece.chessboardPos(), move.target);
-            let nextMoves = this.generateMoves(boardCopy, color, true);
+            let nextMoves = this.generateMoves(boardCopy, color, true, false);
 
             move.leadsToCheck = nextMoves.some(m => m.beatenPiece && m.beatenPiece.isKing() || false);
         }
