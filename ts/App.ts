@@ -45,6 +45,7 @@ class App {
         if (nextTurn !== "w") {
             if (this.moves.length === 0) {
                 console.warn("END");
+                alert("END: " + nextTurn + " lost.");
                 return;
             }
 
@@ -71,8 +72,8 @@ class App {
             let nextTurn = this.findNextTurn();
             let nextMoves = this.generateMoves(boardCopy, nextTurn);
             if (nextMoves.length === 0) {
-                console.warn("END");
-                return null;
+                console.warn("END next moves");
+                return move;
             }
 
             let nextMove: Move;
@@ -89,6 +90,7 @@ class App {
 
             boardCopy.movePiece(nextMove.piece.chessboardPos(), nextMove.target);
             let pieceValues = boardCopy.calculatePieceValues(this.turn);
+            pieceValues += move.leadsToCheck ? 300 : 0;
             if (pieceValues > bestMoveState) {
                 bestMove = move;
             }
